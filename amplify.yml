@@ -2,23 +2,23 @@ version: 1
 
 frontend:
   phases:
-    install:
+    preBuild:
       commands:
-        - npm ci
+        - npm ci --prefer-offline --no-audit
     build:
       commands:
         - npm run build
+    postBuild:
+      commands:
+        - mkdir -p .amplify-hosting/compute/default
+        - cp -r dist/* .amplify-hosting/compute/default/
+        - cp -r node_modules .amplify-hosting/compute/default/
 
   artifacts:
-    baseDirectory: dist
+    baseDirectory: .amplify-hosting/compute/default
     files:
       - '**/*'
+
   cache:
     paths:
       - node_modules/**/*
-
-backend:
-  phases:
-    build:
-      commands:
-        - echo "No backend build phase"

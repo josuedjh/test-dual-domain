@@ -1,12 +1,15 @@
 ---
 // Detectar el dominio del host para mostrar en el idioma correcto
-const host = Astro.url.host;
+const host = Astro.request.headers.get('host') || 'unknown';
 const isSpanish = host.includes('nuevo.yapamarket.com');
 
 // Obtener información del servidor
 const nodeVersion = process.version;
 const environment = process.env.NODE_ENV || 'production';
 const timestamp = new Date().toISOString();
+
+// Establecer headers para deshabilitar caché - prueba que SSR está activo
+Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
 
 // Textos según idioma
 const texts = {

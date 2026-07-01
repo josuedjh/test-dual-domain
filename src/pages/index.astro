@@ -1,6 +1,6 @@
 ---
-// Detectar el dominio del host
-const host = Astro.url.host;
+// Detectar el dominio del host desde el header de la solicitud
+const host = Astro.request.headers.get('host') || 'unknown';
 
 // Determinar el idioma basado en el dominio
 let language = 'EN';
