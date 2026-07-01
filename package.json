@@ -1,0 +1,25 @@
+{
+  "name": "yapamarket-dual-domain",
+  "version": "1.0.0",
+  "description": "Astro SSR multi-language multi-domain project",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "keywords": [
+    "astro",
+    "ssr",
+    "multi-language"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "astro": "^4.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/node": "^6.0.0"
+  }
+}

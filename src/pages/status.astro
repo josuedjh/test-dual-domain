@@ -1,0 +1,253 @@
+---
+// Detectar el dominio del host para mostrar en el idioma correcto
+const host = Astro.url.host;
+const isSpanish = host.includes('nuevo.yapamarket.com');
+
+// Obtener información del servidor
+const nodeVersion = process.version;
+const environment = process.env.NODE_ENV || 'production';
+const timestamp = new Date().toISOString();
+
+// Textos según idioma
+const texts = {
+  en: {
+    title: 'Server Status',
+    pageTitle: 'YapaMarket / Status (EN)',
+    ssrActive: 'Server-Side Rendering Status',
+    ssrMessage: '✓ SSR is actively running on AWS Amplify',
+    serverInfo: 'Server Information',
+    nodeVersionLabel: 'Node.js Version',
+    environmentLabel: 'Environment',
+    timestampLabel: 'Server Time',
+    hostLabel: 'Domain',
+    languageDetected: 'Language Detected',
+    backHome: 'Back to Home',
+  },
+  es: {
+    title: 'Estado del Servidor',
+    pageTitle: 'YapaMarket / Status (ES)',
+    ssrActive: 'Estado Server-Side Rendering',
+    ssrMessage: '✓ SSR se está ejecutando activamente en AWS Amplify',
+    serverInfo: 'Información del Servidor',
+    nodeVersionLabel: 'Versión de Node.js',
+    environmentLabel: 'Entorno',
+    timestampLabel: 'Hora del Servidor',
+    hostLabel: 'Dominio',
+    languageDetected: 'Idioma Detectado',
+    backHome: 'Volver al Inicio',
+  },
+};
+
+const lang = isSpanish ? 'es' : 'en';
+const t = texts[lang];
+---
+
+<!DOCTYPE html>
+<html lang={lang === 'es' ? 'es' : 'en'}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{t.pageTitle}</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+          Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        padding: 40px;
+        max-width: 700px;
+        width: 100%;
+      }
+
+      h1 {
+        color: #333;
+        font-size: 2em;
+        margin-bottom: 10px;
+        font-weight: 700;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 10px;
+      }
+
+      .status-badge {
+        display: inline-block;
+        background: #4caf50;
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        margin-top: 10px;
+        margin-bottom: 30px;
+        font-weight: 600;
+      }
+
+      .info-section {
+        margin: 25px 0;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 8px;
+        border-left: 5px solid #667eea;
+      }
+
+      .info-section h2 {
+        color: #333;
+        font-size: 1.2em;
+        margin-bottom: 15px;
+        font-weight: 600;
+      }
+
+      .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .info-row:last-child {
+        border-bottom: none;
+      }
+
+      .info-label {
+        color: #666;
+        font-weight: 600;
+        min-width: 150px;
+      }
+
+      .info-value {
+        color: #333;
+        font-family: 'Courier New', monospace;
+        font-weight: 500;
+        word-break: break-all;
+      }
+
+      .status-value {
+        color: #4caf50;
+        font-weight: 700;
+      }
+
+      .warning-box {
+        background: #fff3cd;
+        border-left: 5px solid #ffc107;
+        padding: 15px;
+        border-radius: 4px;
+        margin: 20px 0;
+        color: #856404;
+        font-size: 0.95em;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+      }
+
+      a {
+        display: inline-block;
+        padding: 12px 24px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-align: center;
+      }
+
+      .btn-primary {
+        background: #667eea;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-secondary {
+        background: #f0f0f0;
+        color: #333;
+        border: 2px solid #667eea;
+      }
+
+      .btn-secondary:hover {
+        background: #667eea;
+        color: white;
+      }
+
+      code {
+        background: #f0f0f0;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>{t.title}</h1>
+      <span class="status-badge">✓ {lang === 'es' ? 'Activo' : 'Active'}</span>
+
+      <!-- SSR Status Section -->
+      <div class="info-section">
+        <h2>{t.ssrActive}</h2>
+        <div class="info-row">
+          <span class="info-label">{lang === 'es' ? 'Estado:' : 'Status:'}</span>
+          <span class="info-value status-value">{t.ssrMessage}</span>
+        </div>
+      </div>
+
+      <!-- Server Information Section -->
+      <div class="info-section">
+        <h2>{t.serverInfo}</h2>
+        <div class="info-row">
+          <span class="info-label">{t.nodeVersionLabel}</span>
+          <span class="info-value">{nodeVersion}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{t.environmentLabel}</span>
+          <span class="info-value">{environment}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{t.timestampLabel}</span>
+          <span class="info-value">{timestamp}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{t.hostLabel}</span>
+          <span class="info-value">{host}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">{t.languageDetected}</span>
+          <span class="info-value">{isSpanish ? 'Español (ES)' : 'English (EN)'}</span>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        {
+          lang === 'es'
+            ? '📌 Este endpoint demuestra que SSR está funcionando activamente en AWS Amplify, procesando solicitudes del lado del servidor y generando contenido dinámico.'
+            : '📌 This endpoint demonstrates that SSR is actively running on AWS Amplify, processing requests server-side and generating dynamic content.'
+        }
+      </div>
+
+      <div class="button-group">
+        <a href="/" class="btn-primary">{t.backHome}</a>
+        <a href="/status" class="btn-secondary">{lang === 'es' ? 'Recargar' : 'Refresh'}</a>
+      </div>
+    </div>
+  </body>
+</html>
