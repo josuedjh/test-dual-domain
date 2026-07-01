@@ -17,8 +17,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "astro": "^4.0.0",
-    "@astrojs/aws-amplify": "^2.0.0"
+    "astro": "^6.0.0",
+    "astro-aws-amplify": "latest"
   },
   "devDependencies": {}
 }
