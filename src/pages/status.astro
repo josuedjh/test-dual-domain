@@ -1,256 +1,184 @@
 ---
-// Detectar el dominio del host para mostrar en el idioma correcto
+// SSR - Detectar el host y cargar el contenido correcto según el dominio
 const host = Astro.request.headers.get('host') || 'unknown';
-const isSpanish = host.includes('nuevo.yapamarket.com');
 
-// Obtener información del servidor
-const nodeVersion = process.version;
-const environment = process.env.NODE_ENV || 'production';
-const timestamp = new Date().toISOString();
-
-// Establecer headers para deshabilitar caché - prueba que SSR está activo
-Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
-
-// Textos según idioma
-const texts = {
-  en: {
-    title: 'Server Status',
-    pageTitle: 'YapaMarket / Status (EN)',
-    ssrActive: 'Server-Side Rendering Status',
-    ssrMessage: '✓ SSR is actively running on AWS Amplify',
-    serverInfo: 'Server Information',
-    nodeVersionLabel: 'Node.js Version',
-    environmentLabel: 'Environment',
-    timestampLabel: 'Server Time',
-    hostLabel: 'Domain',
-    languageDetected: 'Language Detected',
-    backHome: 'Back to Home',
-  },
-  es: {
-    title: 'Estado del Servidor',
-    pageTitle: 'YapaMarket / Status (ES)',
-    ssrActive: 'Estado Server-Side Rendering',
-    ssrMessage: '✓ SSR se está ejecutando activamente en AWS Amplify',
-    serverInfo: 'Información del Servidor',
-    nodeVersionLabel: 'Versión de Node.js',
-    environmentLabel: 'Entorno',
-    timestampLabel: 'Hora del Servidor',
-    hostLabel: 'Dominio',
-    languageDetected: 'Idioma Detectado',
-    backHome: 'Volver al Inicio',
-  },
+// Mapear hosts a idiomas y contenido
+const hostConfig: Record<string, { lang: 'eu' | 'es' }> = {
+  'topoberriagertuago.topo.localhost:4321': { lang: 'eu' },
+  'nuevotopomascerca.topo.localhost:4321': { lang: 'es' },
 };
 
-const lang = isSpanish ? 'es' : 'en';
-const t = texts[lang];
+// Obtener configuración según el host, con fallback a español
+const config = hostConfig[host] || { lang: 'es' };
+
+// Establecer headers para evitar caché en SSR
+Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
 ---
 
 <!DOCTYPE html>
-<html lang={lang === 'es' ? 'es' : 'en'}>
+<html lang={config.lang}>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{t.pageTitle}</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TOPO portal ({config.lang})</title>
+    <!-- A-Frame and dependencies MUST be in head before scene -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script is:inline src="https://cdn.jsdelivr.net/npm/@8thwall/engine-binary@1/dist/xr.js" crossorigin="anonymous" data-preload-chunks="slam"></script>
+    <script is:inline src="https://cdn.jsdelivr.net/npm/@8thwall/xrextras@1/dist/xrextras.js" crossorigin="anonymous"></script>
 
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-          Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-      }
-
-      .container {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        padding: 40px;
-        max-width: 700px;
-        width: 100%;
-      }
-
-      h1 {
-        color: #333;
-        font-size: 2em;
-        margin-bottom: 10px;
-        font-weight: 700;
-        border-bottom: 3px solid #667eea;
-        padding-bottom: 10px;
-      }
-
-      .status-badge {
-        display: inline-block;
-        background: #4caf50;
-        color: white;
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-size: 0.9em;
-        margin-top: 10px;
-        margin-bottom: 30px;
-        font-weight: 600;
-      }
-
-      .info-section {
-        margin: 25px 0;
-        padding: 20px;
-        background: #f9f9f9;
-        border-radius: 8px;
-        border-left: 5px solid #667eea;
-      }
-
-      .info-section h2 {
-        color: #333;
-        font-size: 1.2em;
-        margin-bottom: 15px;
-        font-weight: 600;
-      }
-
-      .info-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid #e0e0e0;
-      }
-
-      .info-row:last-child {
-        border-bottom: none;
-      }
-
-      .info-label {
-        color: #666;
-        font-weight: 600;
-        min-width: 150px;
-      }
-
-      .info-value {
-        color: #333;
-        font-family: 'Courier New', monospace;
-        font-weight: 500;
-        word-break: break-all;
-      }
-
-      .status-value {
-        color: #4caf50;
-        font-weight: 700;
-      }
-
-      .warning-box {
-        background: #fff3cd;
-        border-left: 5px solid #ffc107;
-        padding: 15px;
-        border-radius: 4px;
-        margin: 20px 0;
-        color: #856404;
-        font-size: 0.95em;
-      }
-
-      .button-group {
-        display: flex;
-        gap: 10px;
-        margin-top: 30px;
-        flex-wrap: wrap;
-      }
-
-      a {
-        display: inline-block;
-        padding: 12px 24px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        text-align: center;
-      }
-
-      .btn-primary {
-        background: #667eea;
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background: #5568d3;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-      }
-
-      .btn-secondary {
-        background: #f0f0f0;
-        color: #333;
-        border: 2px solid #667eea;
-      }
-
-      .btn-secondary:hover {
-        background: #667eea;
-        color: white;
-      }
-
-      code {
-        background: #f0f0f0;
-        padding: 2px 6px;
-        border-radius: 4px;
-        font-family: 'Courier New', monospace;
-      }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Contrail+One&display=swap"
+      rel="stylesheet" />
   </head>
   <body>
-    <div class="container">
-      <h1>{t.title}</h1>
-      <span class="status-badge">✓ {lang === 'es' ? 'Activo' : 'Active'}</span>
-
-      <!-- SSR Status Section -->
-      <div class="info-section">
-        <h2>{t.ssrActive}</h2>
-        <div class="info-row">
-          <span class="info-label">{lang === 'es' ? 'Estado:' : 'Status:'}</span>
-          <span class="info-value status-value">{t.ssrMessage}</span>
-        </div>
-      </div>
-
-      <!-- Server Information Section -->
-      <div class="info-section">
-        <h2>{t.serverInfo}</h2>
-        <div class="info-row">
-          <span class="info-label">{t.nodeVersionLabel}</span>
-          <span class="info-value">{nodeVersion}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">{t.environmentLabel}</span>
-          <span class="info-value">{environment}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">{t.timestampLabel}</span>
-          <span class="info-value">{timestamp}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">{t.hostLabel}</span>
-          <span class="info-value">{host}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">{t.languageDetected}</span>
-          <span class="info-value">{isSpanish ? 'Español (ES)' : 'English (EN)'}</span>
-        </div>
-      </div>
-
-      <div class="warning-box">
-        {
-          lang === 'es'
-            ? '📌 Este endpoint demuestra que SSR está funcionando activamente en AWS Amplify, procesando solicitudes del lado del servidor y generando contenido dinámico.'
-            : '📌 This endpoint demonstrates that SSR is actively running on AWS Amplify, processing requests server-side and generating dynamic content.'
-        }
-      </div>
-
-      <div class="button-group">
-        <a href="/" class="btn-primary">{t.backHome}</a>
-        <a href="/status" class="btn-secondary">{lang === 'es' ? 'Recargar' : 'Refresh'}</a>
-      </div>
+    <div id="loading-screen"></div>
+    <div id="crosshair"></div>
+    <div id="transition-overlay"></div>
+    <div id="experience-hud"><span id="zone-label">Andén</span></div>
+    <div id="overlay" style="display:none" class="absolute-fill">
+      <img id="recenterButton" src="assets/textures/recenter.png" />
+      <button id="gridToggleBtn" class="grid-btn">GRID</button>
     </div>
+    <a-scene
+      preloader
+      responsive-immersive
+      intro-flow
+      debug-grid
+      surface-quality
+      variant-selector
+      tap-to-place-portal
+      station-manager
+      portal-ground-effect
+      vr-mode-ui="enabled: false"
+      xrextras-loading
+      xrextras-runtime-error
+      renderer="colorManagement: true;"
+      xrweb="allowedDevices: any; disableDefaultEnvironment: true;">
+      <a-assets>
+        <a-asset-item
+          id="portal-frame-model"
+          src="assets/models/Portal_frame.glb"></a-asset-item>
+        <a-asset-item
+          id="portal-door-01-model"
+          src="assets/models/Portal_Door_01.glb"></a-asset-item>
+        <a-asset-item
+          id="portal-door-02-model"
+          src="assets/models/Portal_Door_02.glb"></a-asset-item>
+        <img id="station-360-img" src="assets/textures/station-360.jpg" />
+        <img id="exit-a-360-img" src="assets/textures/exit-a-360.jpg" />
+        <img id="portal-glow-img" src="assets/textures/portal-glow.png" />
+        <img id="icon-plus" src="assets/images/Plus.svg" />
+        <img id="icon-aspa" src="assets/images/aspa.svg" />
+      </a-assets>
+
+      <a-camera id="camera" portal-camera position="0 9 11"></a-camera>
+
+      <xrextras-opaque-background remove="true">
+        <a-entity id="hider-walls">
+          <a-box scale="100 1 100" position="0 -1 49" xrextras-hider-material
+          ></a-box>
+          <a-box scale="100 100 1" position="0 50 75" xrextras-hider-material
+          ></a-box>
+          <a-box scale="100 1 100" position="0 100 49" xrextras-hider-material
+          ></a-box>
+          <a-box scale="1 100 100" position="-30 50 50" xrextras-hider-material
+          ></a-box>
+          <a-box scale="1 100 100" position="30 50 50" xrextras-hider-material
+          ></a-box>
+        </a-entity>
+      </xrextras-opaque-background>
+
+      <a-entity
+        id="directional-light"
+        light="
+      type: directional;
+      intensity: 0.2;
+      castShadow: true;
+      shadowMapHeight:2048;
+      shadowMapWidth:2048;
+      shadowCameraTop: 35;
+      shadowCameraBottom: -20;
+      shadowCameraRight: 40;
+      shadowCameraLeft: -10;
+      target: #portalRim"
+        xrextras-attach="target: portalRim; offset: 18 7 14"
+        shadow></a-entity>
+
+      <a-light
+        id="secondary-light"
+        type="hemisphere"
+        color="#CEE4F0"
+        groundColor="#332211"
+        intensity="0.8"></a-light>
+
+      <a-entity id="portal-contents">
+        <a-sky src="#station-360-img" rotation="0 -90 0"></a-sky>
+        <a-entity data-station="station-entrance" hotspot="key: 0" position="0 10 -40"
+        ></a-entity>
+        <a-entity data-station="station-entrance" hotspot="key: 1" position="20 6 -35"
+        ></a-entity>
+        <a-entity data-station="station-entrance" hotspot="key: 2" position="-25 8 -30"
+        ></a-entity>
+      </a-entity>
+
+      <a-entity id="portal-root" scale="1.4 1.4 1.4" visible="false">
+        <a-plane
+          id="portal-stencil-mask"
+          width="3.4"
+          height="8.51"
+          position="0 6.71 0.05"
+          material="shader: flat; color: #000"
+          visible="false"></a-plane>
+        <a-entity
+          id="portal-window"
+          geometry="primitive: sphere; radius: 50; segmentsWidth: 64; segmentsHeight: 32"
+          material="shader: flat; src: #station-360-img; side: back"
+          position="0 0 0"
+          rotation="0 -90 0"
+          scale="-1 1 1"
+          visible="false"></a-entity>
+        <a-entity id="portal-wall">
+          <a-plane
+            width="7"
+            height="14"
+            rotation="0 180 0"
+            position="0 6.71 0"
+            xrextras-hider-material></a-plane>
+          <a-plane
+            width="7"
+            height="14"
+            rotation="0 180 0"
+            position="0 6.71 0.3"
+            xrextras-hider-material></a-plane>
+        </a-entity>
+        <a-plane
+          id="portal-glow"
+          width="3.4"
+          height="8.51"
+          position="0 6.71 0"
+          material="shader: flat; src: #portal-glow-img; transparent: true; depthWrite: false; blending: additive; side: double"
+        ></a-plane>
+        <a-entity
+          id="elevator-doors"
+          elevator-doors="width: 0; openOffset: 1.7; clipHalfWidth: 1.7"
+          position="0 2.45 0">
+          <a-entity id="door-left" gltf-model="#portal-door-01-model" scale="4.3 4.3 4.3"
+          ></a-entity>
+          <a-entity id="door-right" gltf-model="#portal-door-02-model" scale="4.3 4.3 4.3"
+          ></a-entity>
+        </a-entity>
+        <a-entity
+          id="portalRim"
+          gltf-model="#portal-frame-model"
+          reflections="type: realtime"
+          position="0 2.45 0"
+          rotation="0 0 0"
+          scale="4.3 4.3 4.3"
+          shadow="receive: false"></a-entity>
+      </a-entity>
+    </a-scene>
+    <script is:inline src={`/bundle.${config.lang}.js`}></script>
   </body>
 </html>

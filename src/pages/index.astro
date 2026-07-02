@@ -1,202 +1,26 @@
 ---
-// SSR - Detectar el host y cargar el contenido correcto según el dominio
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const host = Astro.request.headers.get('host') || 'unknown';
 
-// Mapear hosts a idiomas y contenido
-const hostConfig: Record<string, { lang: string; content: any }> = {
-  'new.yapamarket.com': {
-    lang: 'en',
-    content: {
-      title: 'YapaMarket - New',
-      heading: 'Welcome to YapaMarket (English)',
-      description: 'This is the new English version served from the new.yapamarket.com domain',
-    }
-  },
-  'nuevo.yapamarket.com': {
-    lang: 'es',
-    content: {
-      title: 'YapaMarket - Nuevo',
-      heading: '¡Bienvenido a YapaMarket! (Español)',
-      description: 'Esta es la nueva versión en español servida desde el dominio nuevo.yapamarket.com',
-    }
-  },
-  // Mapeo para localhost con puertos específicos
-  'topoberriagertuago.topo.localhost:4321': {
-    lang: 'es',
-    content: {
-      title: 'Topo Berriagertuago',
-      heading: '¡Bienvenido a Topo Berriagertuago!',
-      description: 'Contenido local en español (Euskera)',
-    }
-  },
-  'nuevotopomascerca.topo.localhost:4321': {
-    lang: 'es',
-    content: {
-      title: 'Nuevo Topo Mas Cerca',
-      heading: '¡Nuevo Topo Mas Cerca!',
-      description: 'Contenido local en español',
-    }
-  },
+const hostConfig: Record<string, string> = {
+  'topoberriagertuago.topo.localhost:4321': 'index.eu.html',
+  'nuevotopomascerca.topo.localhost:4321': 'index.es.html',
 };
 
-// Obtener configuración según el host, con fallback
-const config = hostConfig[host] || {
-  lang: 'en',
-  content: {
-    title: 'YapaMarket - Default',
-    heading: 'Welcome to YapaMarket',
-    description: `You accessed from: ${host}`,
-  }
-};
+const htmlFile = hostConfig[host] || 'index.es.html';
+const filePath = `${__dirname}/${htmlFile}`;
+const htmlContent = readFileSync(filePath, 'utf-8');
 
-// Establecer headers para evitar caché en SSR
-Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+return new Response(htmlContent, {
+  status: 200,
+  headers: { 'Content-Type': 'text/html; charset=utf-8' }
+});
 ---
 
-<!DOCTYPE html>
-<html lang={config.lang}>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{config.content.title}</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
 
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-      }
-
-      .container {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        padding: 40px;
-        max-width: 700px;
-        width: 100%;
-      }
-
-      h1 {
-        color: #333;
-        font-size: 2em;
-        margin-bottom: 20px;
-        font-weight: 700;
-        border-bottom: 3px solid #667eea;
-        padding-bottom: 15px;
-      }
-
-      .host-info {
-        background: #f0f7ff;
-        border-left: 5px solid #667eea;
-        padding: 15px;
-        border-radius: 4px;
-        margin: 20px 0;
-        color: #333;
-      }
-
-      .host-info strong {
-        color: #667eea;
-      }
-
-      .host-info .label {
-        color: #666;
-        font-size: 0.9em;
-      }
-
-      .host-value {
-        font-family: 'Courier New', monospace;
-        background: #f9f9f9;
-        padding: 8px 12px;
-        border-radius: 4px;
-        margin-top: 8px;
-        word-break: break-all;
-      }
-
-      p {
-        color: #666;
-        line-height: 1.6;
-        margin: 15px 0;
-      }
-
-      .button-group {
-        display: flex;
-        gap: 10px;
-        margin-top: 30px;
-        flex-wrap: wrap;
-      }
-
-      a {
-        display: inline-block;
-        padding: 12px 24px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        text-align: center;
-      }
-
-      .btn-primary {
-        background: #667eea;
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background: #5568d3;
-        transform: translateY(-2px);
-        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-      }
-
-      .badge {
-        display: inline-block;
-        background: #4caf50;
-        color: white;
-        padding: 6px 16px;
-        border-radius: 20px;
-        font-size: 0.9em;
-        margin-bottom: 20px;
-        font-weight: 600;
-      }
-
-      .lang-badge {
-        background: #ff9800;
-        padding: 4px 12px;
-        border-radius: 15px;
-        font-size: 0.85em;
-        margin-left: 10px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="badge">✓ SSR Active</div>
-      <h1>
-        {config.content.heading}
-        <span class="lang-badge">{config.lang.toUpperCase()}</span>
-      </h1>
-
-      <p>{config.content.description}</p>
-
-      <div class="host-info">
-        <div class="label">Host detectado (Host detected):</div>
-        <div class="host-value"><strong>{host}</strong></div>
-      </div>
-
-      <p>
-        ✓ Este contenido fue generado por SSR (Server-Side Rendering) en AWS Amplify detectando tu host.
-      </p>
-
-      <div class="button-group">
-        <a href="/status" class="btn-primary">Ver Estado del Servidor (Server Status)</a>
-      </div>
-    </div>
-  </body>
-</html>
