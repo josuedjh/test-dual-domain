@@ -9,8 +9,12 @@ const __dirname = dirname(__filename);
 const host = Astro.request.headers.get('host') || 'unknown';
 
 const hostConfig: Record<string, string> = {
+  // Desarrollo
   'topoberriagertuago.topo.localhost:4321': 'index.eu.html',
   'nuevotopomascerca.topo.localhost:4321': 'index.es.html',
+  // Producción
+  'new.yapamarket.com': 'index.eu.html',
+  'nuevo.yapamarket.com': 'index.es.html',
 };
 
 const htmlFile = hostConfig[host] || 'index.es.html';
