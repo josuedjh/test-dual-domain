@@ -1,0 +1,11 @@
+services:
+  frontend:
+    container_name: frontend-components
+    image: ghcr.io/apache-digital-studio/portale-topo-website-app:develop
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8080
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"

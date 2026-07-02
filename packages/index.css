@@ -1,0 +1,983 @@
+/* ── Tipografía del diseño (Figma "Font Principal" = Founders Grotesk) ─────
+   Fuente comercial de Klim Type Foundry. Coloca los .woff2 en assets/fonts/
+   con los nombres de abajo (ver assets/fonts/README.md). Mientras no estén,
+   el navegador cae al fallback 'Contrail One' / sans-serif. */
+@font-face {
+  font-family: 'Founders Grotesk';
+  src: url('./assets/fonts/FoundersGrotesk-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Founders Grotesk';
+  src: url('./assets/fonts/FoundersGrotesk-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+body {
+  /* Default global: todo hereda Founders Grotesk salvo overrides explícitos */
+  font-family: 'Founders Grotesk', 'Contrail One', sans-serif;
+  background: black;
+}
+
+/* Hide A-Frame default VR/AR button */
+.a-enter-vr, .a-enter-ar {
+  display: none !important;
+}
+
+/* Hide "Powered by 8th Wall" branding from loading screen */
+.poweredby-img,
+[class*="poweredby"],
+[class*="PoweredBy"] {
+  display: none !important;
+}
+
+/* ── 8th Wall loading screen: hide completely, we use our own overlay ──── */
+#loadBackground {
+  display: none !important;
+}
+
+/* ── Custom loading screen ───────────────────────────────────────────────── */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s ease;
+}
+
+#loading-screen.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#loading-screen::after {
+  content: '';
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid rgba(0, 60, 167, 0.15);
+  border-top-color: #003CA7;
+  box-sizing: border-box;
+  animation: topo-spin 0.8s linear infinite;
+}
+
+@keyframes topo-spin {
+  to { transform: rotate(360deg); }
+}
+
+.absolute-fill {
+  z-index: 30;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  pointer-events: none;
+}
+
+#recenterButton {
+  position: absolute;
+  z-index: 5;
+  left: 2vh;
+  bottom: 2vh;
+  max-width: 50px;
+  pointer-events: auto;
+}
+
+/* ── Debug grid toggle button ───────────────────────────────────────── */
+.grid-btn {
+  position: absolute;
+  z-index: 5;
+  right: 2vh;
+  bottom: 2vh;
+  padding: 8px 16px;
+  border: 2px solid #39FF14;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #39FF14;
+  font-family: 'Contrail One', monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s, color 0.2s;
+}
+.grid-btn:active {
+  transform: scale(0.93);
+}
+.grid-btn-active {
+  background: #39FF14;
+  color: #000;
+}
+
+/* ANIMATIONS */
+
+.pulse-once { animation: pulse-once 0.2s cubic-bezier(0.785, 0.135, 0.150, 0.860) both; }
+@keyframes pulse-once {
+  0%   {transform: scale(1);}
+  50%  {transform: scale(0.8);}
+  100% {transform: scale(1);}
+}
+
+/* ── Crosshair ──────────────────────────────────────────────────────── */
+#crosshair {
+  position: fixed;
+  top: 50%; left: 50%;
+  width: 6px; height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.0);
+  border: 1px solid rgba(255,255,255,0.0);
+  z-index: 15;
+  pointer-events: none;
+}
+
+/* ── Station transition overlay (white flash) ──────────────────────── */
+#transition-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 202;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#transition-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Intro flow overlay ──────────────────────────────────────────────────── */
+
+/* ── Splash screen ───────────────────────────────────────────────────────── */
+#intro-splash {
+  background: white;
+  overflow: hidden;
+}
+
+/* Contenedor fijo 375×812px (dimensiones Figma) escalado uniformemente al dispositivo */
+.splash-frame {
+  position: absolute;
+  width: 375px;
+  height: 812px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(var(--splash-scale, 1));
+  transform-origin: center center;
+}
+
+/* Logo TOPO — Figma: centrado, top:42px size:222×57 */
+.splash-logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 42px;
+  width: 222px;
+  height: 57px;
+  display: block;
+}
+
+/* Ilustración de fondo — Figma: top:161, svg intrínseco 375×303 */
+.splash-background {
+  position: absolute;
+  left: 0;
+  top: 161px;
+  width: 375px;
+  height: 303px;
+  pointer-events: none;
+  display: block;
+}
+
+/* Claim de dos líneas — Figma: centrado, top:493px width:311 */
+.splash-claim-text {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 493px;
+  width: 311px;
+  text-align: center;
+}
+.splash-claim-text p {
+  margin: 0;
+  font-family: 'Founders Grotesk', sans-serif;
+  font-size: 28px;
+  line-height: 28px;
+  letter-spacing: -0.75px;
+  color: #1e1e1e;
+}
+.splash-claim-bold { font-weight: 700; }
+.splash-claim-regular { font-weight: 400; }
+
+/* Botones de idioma — Figma: btn_topo con corte diagonal */
+.splash-btn {
+  position: absolute;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Founders Grotesk', 'Contrail One', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  color: white;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s;
+}
+.splash-btn:active { opacity: 0.82; }
+.splash-btn svg { flex-shrink: 0; }
+
+/* Ajuste vertical fino de los iconos respecto a su texto (misma posición para todos):
+   flecha de los botones, loader/check del scan-box y X de cerrar.
+   'top' negativo sube el icono; positivo lo baja. */
+img[src$="arrow.svg"],
+#scan-icon,
+.cv-cerrar img {
+  position: relative;
+  top: -3.5px;
+}
+
+/* Euskera — azul, extiende por la izquierda fuera de pantalla — Figma: top:594 */
+.splash-btn-blue {
+  background: #003ca7;
+  left: -9999px;
+  top: 594px;
+  width: calc(213px + 9999px);
+  padding-left: 9999px;
+  box-sizing: border-box;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 25px) 100%, 0 100%);
+  z-index: 2;
+}
+
+/* Castellano — turquesa, extiende por la derecha fuera de pantalla — Figma: top:642 */
+/* top: 642px (adyacente exacto a la banda azul) para sellar el punto de unión con la diagonal */
+.splash-btn-teal {
+  background: #44d9cb;
+  right: -9999px;
+  top: 642px;
+  width: calc(212px + 9999px);
+  padding-right: 9999px;
+  box-sizing: border-box;
+  clip-path: polygon(25px 0, 100% 0, 100% 100%, 0 100%);
+  z-index: 1;
+}
+
+/* Footer de logos — Figma: alineados en la parte baja, top ~729-732 */
+.splash-footer-logo {
+  position: absolute;
+  display: block;
+}
+/* Euskotren — left:44.8 top:731.8 size:69.78×29.92 */
+.splash-footer-euskotren {
+  left: 44.8px;
+  top: 731.8px;
+  width: 69.784px;
+  height: 29.915px;
+}
+/* Euskal Trenbide Sarea — left:146 top:731.8 size:41.67×29.92 */
+.splash-footer-trenbide {
+  left: 146px;
+  top: 731.8px;
+  width: 41.668px;
+  height: 29.915px;
+}
+/* Gobierno Vasco — left:219.07 top:728.65 size:111.74×52.31 */
+.splash-footer-gobierno {
+  left: 219.07px;
+  top: 728.65px;
+  width: 111.738px;
+  height: 52.314px;
+}
+
+
+#intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: none;
+}
+
+#intro-backdrop {
+  position: absolute;
+  inset: 0;
+  background: white;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  pointer-events: auto;
+}
+
+#intro-overlay.phase-instructions #intro-backdrop {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#intro-overlay.phase-scanning #intro-backdrop {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.1s ease;
+}
+
+/* ── Screens ─────────────────────────────────────────────────────────────── */
+.intro-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+  opacity: 0;
+  /* Salida: la sección anterior se desvanece suave mientras la nueva entra encima */
+  transition: opacity 0.45s ease;
+}
+.intro-screen.active {
+  opacity: 1;
+  pointer-events: auto;
+  /* Entrada: fade + ligero ascenso para que el cambio de sección "asiente" en vez
+     de aparecer en seco. Transform sobre .intro-screen (sin transform propio) — NO
+     sobre .splash-frame, que ya usa transform para su escala. */
+  animation: intro-screen-in 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+/* Scanning trae su propia entrada (scan-box-in) + revelado de cámara: sin rise extra */
+#intro-scanning.active {
+  animation: none;
+}
+
+@keyframes intro-screen-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Shared spacer */
+.intro-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Shared action row at bottom */
+.intro-actions {
+  padding: 16px 28px 52px;
+  display: flex;
+  gap: 12px;
+}
+
+/* ── Language screen ─────────────────────────────────────────────────────── */
+.lang-btn {
+  flex: 1;
+  padding: 16px 8px;
+  background: transparent;
+  border: 1.5px solid #0a2463;
+  border-radius: 28px;
+  color: #0a2463;
+  font-family: 'Founders Grotesk', 'Contrail One', sans-serif;
+  font-size: 16px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.18s, color 0.18s, transform 0.12s;
+}
+.lang-btn:active {
+  transform: scale(0.95);
+  background: #0a2463;
+  color: white;
+}
+
+/* ── Info screen (section 3) ─────────────────────────────────────────────── */
+#intro-info {
+  background: white;
+  overflow: hidden;
+}
+
+.info-logo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 148px;
+  height: 56px;
+  display: block;
+}
+
+.info-content {
+  position: absolute;
+  left: 32px;
+  top: 130px;
+  width: 286px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.info-headline {
+  margin: 0;
+  font-family: 'Founders Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 50px;
+  line-height: 52.5px;
+  letter-spacing: -1px;
+  color: #1e1e1e;
+}
+
+.info-body {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-body p {
+  margin: 0;
+  font-family: 'Founders Grotesk', sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 20px;
+  color: #1e1e1e;
+}
+
+.info-body p + p {
+  margin-top: 16px;
+}
+.info-body strong {
+  font-weight: 700;
+}
+
+.info-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Founders Grotesk', 'Contrail One', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  color: #1e1e1e;
+  text-transform: uppercase;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.info-link:active { opacity: 0.65; }
+
+/* Botón COMENZAR — diagonal izquierda, extiende off-screen a la derecha */
+.info-btn-comenzar {
+  position: absolute;
+  right: -9999px;
+  top: 732px;
+  width: calc(272px + 9999px);
+  height: 48px;
+  padding-right: 9999px;
+  /* Centra texto+flecha en el bloque azul tras la esquina diagonal de 25px (Figma btn-topo) */
+  padding-left: 25px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #003ca7;
+  clip-path: polygon(25px 0, 100% 0, 100% 100%, 0 100%);
+  font-family: 'Founders Grotesk', 'Contrail One', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s;
+}
+.info-btn-comenzar:active { opacity: 0.82; }
+
+/* ── Shared primary button ───────────────────────────────────────────────── */
+.intro-btn {
+  flex: 1;
+  padding: 16px 8px;
+  background: transparent;
+  border: 1.5px solid #0a2463;
+  border-radius: 28px;
+  color: #0a2463;
+  font-family: 'Founders Grotesk', 'Contrail One', sans-serif;
+  font-size: 16px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.18s, color 0.18s, transform 0.12s;
+}
+.intro-btn:active {
+  transform: scale(0.95);
+  background: #0a2463;
+  color: white;
+}
+
+/* ── Instructions screen (section 4) ────────────────────────────────────── */
+
+/*
+  Fondo diagonal derivado del Figma (UI overlay / Union):
+  Union = 1731px ancho × 812px alto para un frame de 375px.
+  Cambio vertical en 375px: 812/1731 × 375 ≈ 176px → offset ±88px desde el centro.
+  Diagonal: arriba-derecha → abajo-izquierda.
+  Responsive: calc(50% ± 88px) — el vértice central siempre en el 50% de pantalla.
+
+  Nota: backdrop-filter y clip-path en el MISMO elemento tiene bugs en Chrome/Safari.
+  Por eso el blur va en el wrapper (sin clip-path) y el color en el hijo (con clip-path).
+*/
+.instr-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  /* Desenfoque suave aplicado a toda la cámara AR visible */
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+/* Fondo diagonal — SVG inline con viewBox extendido (geometría del Figma
+   "UI overlay / Union" + márgenes de full-bleed). Se ancla al MISMO frame 375×812
+   escalado por --splash-scale que .splash-frame, de modo que logo, bandas, textos y
+   botones comparten un único sistema de coordenadas y encajan en cualquier dispositivo.
+
+   FULL-BLEED EN CUALQUIER ASPECT RATIO
+   El diseño es portrait; con s = min(W/375, H/812) el frame se centra y deja huecos
+   laterales (en escritorio / AR ancho) o verticales (en móviles muy alargados). Para que
+   las bandas SIEMPRE rebasen los bordes, el SVG lleva márgenes planos: Mx=2000 a cada lado
+   y My=600 arriba/abajo (la diagonal del Figma se conserva intacta, sólo se prolonga el
+   relleno plano). El viewBox pasa a "-2000 -600 5614 2009".
+
+   Anclaje (1 unidad de viewBox = s px; se conservan los puntos del diseño original):
+     · x=0  (origen Figma) ⇒ 50% − 724.05·s   → element-left = 50% − (724.05+2000)·s
+     · y=0  (origen Figma) ⇒ 50% − 406·s       → element-top  = 50% − (406+600)·s
+   Cobertura: con Mx=2000 las bandas alcanzan los bordes hasta ~32:9; con My=600 hasta
+   ratios extremadamente alargados. overflow:visible mantiene la diagonal sin recortes. */
+.instr-union {
+  position: absolute;
+  top:    calc(50% - 1006px    * var(--splash-scale, 1));
+  left:   calc(50% - 2724.05px * var(--splash-scale, 1));
+  width:  calc(5614px          * var(--splash-scale, 1));
+  height: calc(2009px          * var(--splash-scale, 1));
+  display: block;
+  overflow: visible;
+}
+
+/* Bloque de contenido — sin fondo, sobre la imagen diagonal */
+.instr-content {
+  position: absolute;
+  left: 32px;
+  top: 360px;
+  width: 311px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.instr-title {
+  margin: 0;
+  font-family: 'Founders Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 28px;
+  letter-spacing: -0.75px;
+  color: black;
+}
+
+.instr-desc {
+  margin: 0;
+  font-family: 'Founders Grotesk', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  color: black;
+}
+
+.instr-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.instr-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  opacity: 0;
+}
+
+.instr-icon-img {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.instr-row-text {
+  margin: 0;
+  font-family: 'Founders Grotesk', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  color: black;
+}
+
+.instr-label {
+  font-weight: 700;
+}
+
+/* Items aparecen escalonados cada 1s; botón 1s después del último */
+@keyframes instr-item-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+#intro-instructions.active .instr-row-1 { animation: instr-item-in 0.5s ease both; animation-delay: 0.3s; }
+#intro-instructions.active .instr-row-2 { animation: instr-item-in 0.5s ease both; animation-delay: 1.3s; }
+#intro-instructions.active .instr-row-3 { animation: instr-item-in 0.5s ease both; animation-delay: 2.3s; }
+
+/* Botón INICIAR ESCANEO — diagonal izquierda, extiende off-screen a la derecha */
+.instr-btn-escanear {
+  position: absolute;
+  right: -9999px;
+  top: 732px;
+  width: calc(272px + 9999px);
+  height: 48px;
+  padding-right: 9999px;
+  /* Centra texto+flecha en el bloque azul tras la esquina diagonal de 25px (Figma btn-topo) */
+  padding-left: 25px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #003ca7;
+  clip-path: polygon(25px 0, 100% 0, 100% 100%, 0 100%);
+  font-family: 'Founders Grotesk', 'Contrail One', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  opacity: 0;
+}
+.instr-btn-escanear:active { opacity: 0.82; }
+#intro-instructions.active .instr-btn-escanear { animation: instr-item-in 0.5s ease both; animation-delay: 3.3s; }
+
+/* ── Scanning screen ─────────────────────────────────────────────────────── */
+
+/* Estado minimizado: el MISMO union (idéntica geometría y escala que el panel
+   completo), recortado a su 1ª banda — 56px del frame — que aloja el logo.
+   clip-path recorta solo en vertical y conserva el full-bleed horizontal, así que
+   al expandir "Cambiar vista" la banda parece simplemente crecer sin saltos. */
+.logo-container-clip {
+  position: absolute;
+  inset: 0;                /* pantalla completa: el union se ancla al centro */
+  overflow: visible;       /* el recorte lo hace clip-path, no el contenedor */
+  pointer-events: none;
+}
+.logo-container-clip .instr-union {
+  /* revela sólo band-0 (y0–56) del nuevo box (top y=-600, alto 2009).
+     +0.5px en el inset inferior: sesgo hacia dentro para que el borde del clip (en posición
+     fraccional N·s) no exponga, al snapear al grid de píxel físico, un sliver de la banda
+     vecina oculta. Recorta band-0 ~0.5px (imperceptible) y elimina la "fuga" en dpr≥2. */
+  clip-path: inset(calc(600px * var(--splash-scale, 1)) 0 calc(1353px * var(--splash-scale, 1) + 0.5px) 0);
+}
+
+/* Base compartida: indicador scan + botón inicio — mismo corte diagonal, mismo top */
+#scan-box,
+.scan-btn-start {
+  position: absolute;
+  right: -9999px;
+  top: 732px;
+  width: calc(272px + 9999px);
+  height: 48px;
+  padding-right: 9999px;
+  /* Centra contenido en el bloque tras la esquina diagonal de 25px (Figma btn-topo) */
+  padding-left: 25px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  clip-path: polygon(25px 0, 100% 0, 100% 100%, 0 100%);
+  font-family: 'Founders Grotesk', 'Contrail One', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.4s ease;
+}
+
+/* Indicador scan — blanco */
+#scan-box {
+  background: white;
+  color: black;
+}
+
+#intro-scanning.active #scan-box {
+  animation: scan-box-in 0.4s cubic-bezier(0.34, 1.26, 0.64, 1) both;
+}
+
+@keyframes scan-box-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Icono loader — gira continuamente */
+.scan-icon-spin {
+  flex-shrink: 0;
+  animation: spin 1s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Fade-in del texto de la banda cada vez que el mensaje de escaneo cambia */
+.scan-text-swap {
+  animation: scan-text-swap 0.35s ease both;
+}
+
+@keyframes scan-text-swap {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Botón INICIAR EXPERIENCIA — azul, oculto hasta que scan termina */
+.scan-btn-start {
+  gap: 8px;
+  background: #003ca7;
+  color: white;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+}
+.scan-btn-start.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.scan-btn-start:active { opacity: 0.82; }
+
+/* ── Persistent scanning HUD ─────────────────────────────────────────────── */
+/* Logo-container, TOPO symbol y trazado viven aquí — sobreviven al _finish()  */
+#scanning-hud {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 199;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+#scanning-hud.visible {
+  display: block;
+}
+/* Mientras "Cambiar vista" está expandido se oculta la banda minimizada para que
+   no se superponga (doble opacidad / costura) con el panel completo del overlay. */
+body.cv-open #scanning-hud {
+  opacity: 0;
+}
+
+/* Trazado 199 — banda decorativa al pie de pantalla, persiste en la experiencia AR.
+   Antes era un <img> del SVG (327px de ancho) que, centrado, se quedaba corto por la
+   derecha en pantallas anchas. Ahora se reproduce en CSS con geometría idéntica:
+   · borde izquierdo CONGELADO en su posición actual = 50% − 163.5px (mitad del ancho
+     original de 327px) con la misma diagonal de 24.6px,
+   · degradado vertical blanco 0.7 → 1,
+   · right:0 hace que SOLO el lado derecho se alargue hasta el borde de pantalla. */
+.scan-trazado {
+  position: absolute;
+  bottom: 0;
+  left: calc(50% - 163.5px);
+  right: 0;
+  height: 48px;
+  display: block;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.7), #ffffff);
+  clip-path: polygon(24.6px 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* ── Experience HUD ─────────────────────────────────────────────────────── */
+/* Zone label + cambiar-vista button — aparecen al entrar al portal         */
+
+#experience-hud {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 201;
+  pointer-events: none;
+}
+#experience-hud.visible {
+  display: block;
+}
+
+@keyframes hud-item-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Banda diagonal contenedora del nombre de estación — 2ª franja (band-2, y56–112)
+   del MISMO Union diagonal que aloja el logo. Se recorta a esa única franja, de modo
+   que queda alineada a la derecha y justo debajo del contenedor del logo, con idéntica
+   geometría y escala. Es el "Trazado 199" del Figma. */
+.zone-band-clip {
+  position: absolute;
+  inset: 0;                /* el Union se ancla al centro, como en logo-container-clip */
+  overflow: visible;       /* el recorte lo hace clip-path */
+  pointer-events: none;
+}
+.zone-band-clip .instr-union {
+  /* revela sólo band-2 (y56–112) del nuevo box (top y=-600, alto 2009).
+     +0.5px en el inset inferior: mismo sesgo que .logo-container-clip para evitar que el borde
+     inferior del clip exponga un sliver de la banda vecina oculta (band-3) al snapear al grid
+     de píxel físico. Elimina la "fuga" de línea fina gris bajo el contenedor del nombre. */
+  clip-path: inset(calc(656px * var(--splash-scale, 1)) 0 calc(1297px * var(--splash-scale, 1) + 0.5px) 0);
+}
+
+/* Nombre de zona — centrado dentro de la banda band-2. Vive directamente en
+   #experience-hud (viewport), no en .splash-frame, para compartir el MISMO sistema de
+   coordenadas que el Union (50% + offset·s) y así quedar centrado en la porción visible
+   de la banda en cualquier ancho de pantalla.
+     · vertical: franja y56–112 ⇒ top = (50% − 406·s) + 56·s = 50% − 350·s, alto 56·s
+     · horizontal: desde justo a la derecha del corte diagonal (~126·s) hasta el borde
+       derecho de pantalla; el texto se centra en esa zona */
+#zone-label {
+  position: absolute;
+  top: calc(50% - 350px * var(--splash-scale, 1));
+  left: calc(50% + 130px * var(--splash-scale, 1));
+  right: 0;
+  height: calc(56px * var(--splash-scale, 1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: calc(8px * var(--splash-scale, 1));
+  font-family: 'Founders Grotesk', 'Contrail One', sans-serif;
+  font-weight: 700;
+  font-size: calc(18px * var(--splash-scale, 1));
+  line-height: 1;
+  color: #000;
+}
+#experience-hud.visible .zone-band-clip,
+#experience-hud.visible #zone-label {
+  animation: hud-item-in 0.4s ease 0.2s both;
+}
+
+
+/* Botón cambiar vista — vive en scanning-hud (z:199), encima del trazado por DOM order */
+#btn-cambiar-vista.visible {
+  animation: hud-item-in 0.4s ease 0.5s both;
+}
+
+/* ── Change-view overlay ─────────────────────────────────────────────────── */
+/* Mismo fondo que "Indicaciones importantes" + contenido del Figma 117:2148 */
+
+#change-view-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  /* Mismo desenfoque suave de cámara que la pantalla de instrucciones (Figma) */
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+#change-view-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Botón CERRAR — top:296 right:16 dentro del splash-frame 375×812 */
+.cv-cerrar {
+  position: absolute;
+  top: 296px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Founders Grotesk', 'Contrail One', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  text-transform: uppercase;
+  color: black;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Bloque de texto — left:32 top:398 w:275 (Figma 117:2156) */
+.cv-text {
+  position: absolute;
+  left: 32px;
+  top: 398px;
+  width: 275px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.cv-title {
+  margin: 0;
+  font-family: 'Founders Grotesk', 'Contrail One', sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 28px;
+  letter-spacing: -0.75px;
+  color: black;
+}
+.cv-desc {
+  margin: 0;
+  font-family: 'Founders Grotesk', 'Contrail One', sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  color: black;
+}
+
+/* Botones de navegación — full-bleed, mismo patrón que scan-btn-start */
+.cv-btn {
+  position: absolute;
+  right: -9999px;
+  height: 48px;
+  padding-right: 9999px;
+  /* Centra texto+flecha en el bloque azul tras la esquina diagonal de 25px (Figma btn-topo) */
+  padding-left: 25px;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  clip-path: polygon(25px 0, 100% 0, 100% 100%, 0 100%);
+  font-family: 'Founders Grotesk', 'Contrail One', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 20px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: #003ca7;
+  color: white;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* VESTÍBULO — left edge a 134px (375−241): top:668 (604+64), ligeramente más adentro */
+.cv-btn-vestibulo {
+  top: 668px;
+  width: calc(241px + 9999px);
+}
+
+/* ACCESO — left edge a 103px (375−272): top:732 (604+128) */
+.cv-btn-acceso {
+  top: 732px;
+  width: calc(272px + 9999px);
+}

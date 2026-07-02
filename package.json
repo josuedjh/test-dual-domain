@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "build": "astro build",
+    "build:packages": "cd packages && npm install && npm run build && cd ..",
+    "copy:pages": "cp public/index.*.html src/pages/",
+    "build": "npm run build:packages && npm run copy:pages && astro build",
     "preview": "astro preview"
   },
   "keywords": [

@@ -1,0 +1,15 @@
+.mcp.json
+.claude/
+node_modules/
+.env
+.env.local
+dist/
+build/
+*.log
+.DS_Store
+desktio.ini
+.idea/
+.vscode/
+desktop.ini
+.pnpm-store/
+.pnpm-debug.log.initialized

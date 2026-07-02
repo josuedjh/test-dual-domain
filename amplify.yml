@@ -4,10 +4,15 @@ frontend:
   phases:
     preBuild:
       commands:
+        # Instalar dependencias en raíz
         - npm ci --cache .npm --prefer-offline
+        # Instalar dependencias en @packages/
+        - cd packages && npm ci --cache ../.npm --prefer-offline && cd ..
     build:
       commands:
+        # Ejecuta: webpack build → copia HTML → astro build
         - npm run build
+        # Copiar node_modules a .amplify-hosting/ para SSR Lambda
         - mv node_modules ./.amplify-hosting/compute/default
 
   artifacts:
