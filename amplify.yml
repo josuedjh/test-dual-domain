@@ -6,8 +6,8 @@ frontend:
       commands:
         # Instalar dependencias en raíz
         - npm ci --cache .npm --prefer-offline
-        # Instalar dependencias en @packages/
-        - cd packages && npm ci --cache ../.npm --prefer-offline && cd ..
+        # Instalar dependencias en @packages/ (npm install porque packages/ usa yarn.lock)
+        - cd packages && npm install && cd ..
     build:
       commands:
         # Ejecuta: webpack build → copia HTML → astro build
